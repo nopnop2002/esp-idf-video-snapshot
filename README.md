@@ -164,13 +164,13 @@ Filenames can be timestamped.
 - Post using MQTT   
 Still images are posted using MQTT.   
 You can use subscribe.py as viewer.   
-```
-python3 -m pip install -U wheel
-python3 -m pip install paho-mqtt
-python3 -m pip install opencv-python
-python3 -m pip install numpy
-python3 ./subscribe.py
-```
+	```
+	python3 -m pip install -U wheel
+	python3 -m pip install paho-mqtt
+	python3 -m pip install opencv-python
+	python3 -m pip install numpy
+	python3 ./subscribe.py
+	```
 
 ![config-post-3](https://user-images.githubusercontent.com/6020549/198752572-26338565-fe6e-4efa-b9ae-bd85fb8131bf.jpg)
 
