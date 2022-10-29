@@ -211,3 +211,5 @@ You can use mDNS instead of IP address.
 
 
 
+# References
+https://github.com/nopnop2002/esp-idf-video-streaming
