@@ -97,7 +97,7 @@ You can use static IP.
 
 ## Select Snapshot Trigger
 
-You can choose one of the following as trigger
+You can choose one of the following as trigger.   
 
 - Trigger is the Enter key on the keyboard   
 For operation check
@@ -131,7 +131,7 @@ python3 ./udp_send.py
 
 - Trigger is MQTT Subscribe   
 You can use mosquitto_pub as trigger.   
-`mosquitto_pub -h your_broker -p 1883 -t "/topic/picture/sub" -m ""`
+`mosquitto_pub -h your_broker -p 1883 -t "/take/picture" -m ""`
 
 ![config-trigger-5](https://user-images.githubusercontent.com/6020549/198751524-7bdbcbcd-ca89-4cdf-ae76-4d920e1eb92c.jpg)
 
@@ -147,6 +147,7 @@ You can use this command as trigger.
 
 - No post   
 Still images don't post anywhere.   
+
 ![config-post-1](https://user-images.githubusercontent.com/6020549/198752042-278e8234-0031-44be-ab7d-371e88de018c.jpg)
 
 - Post using HTTP   
@@ -187,15 +188,16 @@ See [here](https://github.com/nopnop2002/esp-idf-video-streaming/issues).
 - Build and flash firmware to esp32.
 
 - Connect the USB camera at this timing.   
-![WaitingForDevice](https://user-images.githubusercontent.com/6020549/193183218-1a2100c8-7b51-444d-953e-cf7b8acd3313.jpg)
+![WaitingForDevice](https://user-images.githubusercontent.com/6020549/198753836-44a77b64-6670-44d3-b4c6-c7dde28e81e9.jpg)
 
 - For available USB cameras, device information will be displayed and video streaming will begin.   
-![StartStreaming](https://user-images.githubusercontent.com/6020549/193183252-fa3473ef-b0b4-4639-b01f-e7ce8f497583.jpg)
+![StreamStart](https://user-images.githubusercontent.com/6020549/198753874-8c56fa88-1709-440b-8fbd-d81b3bff3b8b.jpg)
 
 - For unavailable USB cameras, you will see an error like this.   
 ![NotSupportCamera](https://user-images.githubusercontent.com/6020549/193183435-e35e03e4-e5f7-4efd-bfbf-87e2afde3b6f.jpg)
 
 - Execute trigger.  
+![ExecuteTrigger](https://user-images.githubusercontent.com/6020549/198753939-ad4c5a1e-f33c-40b1-89d9-59fc2bf4296f.jpg)
 
 # View picture using Built-in WEB Server
 You can view the pictures taken using the built-in WEB server.   
