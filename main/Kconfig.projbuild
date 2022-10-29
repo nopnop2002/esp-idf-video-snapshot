@@ -1,0 +1,293 @@
+menu "Application configuration"
+
+	config GPIO_RANGE_MAX
+		int
+		default 46 if IDF_TARGET_ESP32S2
+		default 48 if IDF_TARGET_ESP32S3
+
+	menu "WiFi Setting"
+
+		config ESP_WIFI_SSID
+			string "WiFi SSID"
+			default "myssid"
+			help
+				SSID (network name) to connect to.
+
+		config ESP_WIFI_PASSWORD
+			string "WiFi Password"
+			default "mypassword"
+			help
+				WiFi password (WPA or WPA2) to connect to.
+
+		config ESP_MAXIMUM_RETRY
+			int "Maximum retry"
+			default 5
+			help
+				Set the Maximum retry to avoid station reconnecting to the AP unlimited when the AP is really inexistent.
+
+		config MDNS_HOSTNAME
+			string "mDNS Hostname"
+			default "esp32-camera"
+			help
+				The mDNS host name used by the ESP32.
+
+		config STATIC_IP
+			bool "Enable Static IP Address"
+			default false
+			help
+				Enable Static IP Address.
+
+		config STATIC_IP_ADDRESS
+			depends on STATIC_IP
+			string "Static IP Address"
+			default "192.168.10.100"
+			help
+				Static IP Address for Station.
+
+		config STATIC_GW_ADDRESS
+			depends on STATIC_IP
+			string "Static GW Address"
+			default "192.168.10.1"
+			help
+				Static GW Address for Station.
+
+		config STATIC_NM_ADDRESS
+			depends on STATIC_IP
+			string "Static Netmask"
+			default "255.255.255.0"
+			help
+				Static Netmask for Station.
+	endmenu
+
+
+	menu "Select Snapshot Trigger"
+
+		choice SHUTTER_SELECT
+			bool "Select Snapshot Trigger"
+			default SHUTTER_ENTER
+			help
+				Selecting Snapshot Trigger
+
+			config SHUTTER_ENTER
+				bool "Use Enter key"
+			config SHUTTER_GPIO
+				bool "Use GPIO"
+			config SHUTTER_TCP
+				bool "Use TCP Socket"
+			config SHUTTER_UDP
+				bool "Use UDP Socket"
+			config SHUTTER_MQTT
+				bool "Use MQTT Subscribe"
+			config SHUTTER_HTTP
+				bool "Use HTTP Request"
+		endchoice
+
+		config GPIO_INPUT
+			int "Input GPIO number"
+			depends on SHUTTER_GPIO
+			range 0 GPIO_RANGE_MAX
+			default 36
+			help
+				GPIO number (IOxx) to Button Input.
+				Some GPIOs are used for other purposes (such as USB connectivity) and cannot be used as Button.
+
+		choice GPIO_INITIAL
+			prompt "GPIO Initial state"
+			depends on SHUTTER_GPIO
+			default GPIO_PULLDOWN
+			help
+				Select initial state of GPIO.
+
+			config GPIO_PULLUP
+				bool "Pull-Up"
+				help
+					Initial state of GPIO is Pull-UP.
+
+			config GPIO_PULLDOWN
+				bool "Pull-Down"
+				help
+					Initial state of GPIO is Pull-DOWN.
+
+		endchoice
+
+
+		config TCP_PORT
+			int "TCP Port"
+			depends on SHUTTER_TCP
+			range 0 65535
+			default 9876
+			help
+				Local port TCP server will listen on.
+
+		config UDP_PORT
+			int "UDP Port"
+			depends on SHUTTER_UDP
+			range 0 65535
+			default 9876
+			help
+				Local port UDP server will listen on.
+
+		config SUB_BROKER
+			string "MQTT Broker"
+			depends on SHUTTER_MQTT
+			default "esp32-broker.local"
+			help
+				Host name or IP address of the broker to connect to
+
+		config SUB_TOPIC
+			string "Subscribe Topic"
+			depends on SHUTTER_MQTT
+			default "/take/picture"
+			help
+				Topic of subscribe
+
+		config SHUTTER_URL
+			string "URL for built-in WEB server"
+			depends on SHUTTER_HTTP
+			default "/take/picture"
+			help
+				URL for built-in WEB server.
+				Must start with /.
+	endmenu
+
+	menu "Post Setting"
+
+		choice POST_SELECT
+			bool "Select how to post your snapshot"
+			default NO_POST
+			help
+				Select how to post your snapshot.
+
+			config NO_POST
+				bool "No post anywhere"
+			config HTTP_POST
+				bool "Post using HTTP"
+			config MQTT_POST
+				bool "Post using MQTT"
+		endchoice
+
+		config WEB_SERVER
+			depends on HTTP_POST
+			string "HTTP Server"
+			default "myhttpserver.local"
+			help
+				The host name or IP address of the HTTP server to use.
+
+		config WEB_PORT
+			depends on HTTP_POST
+			string "HTTP Port"
+			default "8080"
+			help
+				HTTP server port to use.
+
+		config WEB_PATH
+			depends on HTTP_POST
+			string "HTTP Url"
+			default "/upload_multipart"
+			help
+				HTTP Server url to use.
+
+		choice REMOTE_FILE
+			depends on HTTP_POST
+			bool "Select attached file name"
+			default REMOTE_IS_FIXED_NAME
+			help
+				Select attached file name.
+
+			config REMOTE_IS_FIXED_NAME
+				bool "Attached file name is fixed"
+			config REMOTE_IS_VARIABLE_NAME
+				bool "Attached file name is date and time"
+		endchoice
+
+		config FIXED_REMOTE_FILE
+			depends on REMOTE_IS_FIXED_NAME
+			string "Fixed-Attached file name"
+			default "picture.jpg"
+			help
+				Attached file name.
+
+		config NTP_SERVER
+			depends on REMOTE_IS_VARIABLE_NAME
+			string "NTP Server"
+			default "pool.ntp.org"
+			help
+				Hostname for NTP Server.
+
+		config LOCAL_TIMEZONE
+			depends on REMOTE_IS_VARIABLE_NAME
+			int "Your TimeZone"
+			range -23 23
+			default 0
+			help
+				Your local timezone.  When it is 0, Greenwich Mean Time.
+
+		config PUB_BROKER
+			depends on MQTT_POST
+			string "MQTT Broker"
+			default "esp32-broker.local"
+			help
+				Host name or IP address of the broker to connect to
+
+		config PUB_TOPIC
+			depends on MQTT_POST
+			string "Publish Topic"
+			default "/image/esp32cam"
+			help
+				Topic of publish
+
+	endmenu
+
+	menu "Camera Setting"
+
+		config MANUAL_SETTING
+			bool "Manual Setting"
+			default n
+			help
+				Enable Manual Setting.
+
+		choice FRAME_SIZE
+			prompt "Select Frame Size"
+			depends on MANUAL_SETTING
+			default SIZE_320x240
+			help
+				Select Frame Size.
+			config SIZE_640x480
+				bool "640x480"
+				help
+					640x480.
+			config SIZE_352x288
+				bool "352x288"
+				help
+					352x288.
+			config SIZE_320x240
+				bool "320x240"
+				help
+					320x640.
+			config SIZE_160x120
+				bool "160x120"
+				help
+					160x120.
+		endchoice
+
+		choice FRAME_FORMAT
+			prompt "Select Frame Format"
+			depends on MANUAL_SETTING
+			default FORMAT_YUY2
+			help
+				Select Frame Format.
+			config FORMAT_YUY2
+				bool "UncompressedFormat"
+				help
+					UncompressedFormat.
+			config FORMAT_MJPG
+				bool "MJPEGFormat"
+				help
+					MJPEGFormat.
+		endchoice
+
+
+	endmenu
+
+
+endmenu
