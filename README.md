@@ -153,8 +153,9 @@ Still images don't post anywhere.
 - Post using HTTP   
 Still images are posted using HTTP.   
 You can download the HTTP server from [here](https://github.com/nopnop2002/multipart-upload-server).   
-
 ![config-post-21](https://user-images.githubusercontent.com/6020549/198752075-4fd95b75-b1dc-432e-957c-2204fe6d5db9.jpg)
+
+Filenames can be timestamped.   
 ![config-post-22](https://user-images.githubusercontent.com/6020549/198752078-16e2dfb9-357e-4600-9fc5-c13373753861.jpg)
 
 
