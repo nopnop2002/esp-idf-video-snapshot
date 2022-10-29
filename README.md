@@ -122,10 +122,10 @@ You can use tcp_send.py as trigger.
 
 - Trigger is UDP Socket   
 You can use udp_send.py as trigger.   
-```
-python3 -m pip install -U netifaces
-python3 ./udp_send.py
-```
+	```
+	python3 -m pip install -U netifaces
+	python3 ./udp_send.py
+	```
 
 ![config-trigger-4](https://user-images.githubusercontent.com/6020549/198751480-7784dfba-9d23-4c2f-a744-15b63165a027.jpg)
 
