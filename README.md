@@ -105,6 +105,7 @@ For operation check
 ![config-trigger-1](https://user-images.githubusercontent.com/6020549/198751298-e109b555-edf2-4d59-8386-14fd59951aeb.jpg)
 
 - Trigger is a GPIO toggle
+Some GPIOs are used as boot straps and cannot be used as inputs.   
 
   - Initial Sate is PULLDOWN   
 The trigger is prepared when it is turned from OFF to ON, and a picture is taken when it is turned from ON to OFF.   
