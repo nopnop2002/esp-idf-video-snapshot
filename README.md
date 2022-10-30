@@ -2,7 +2,7 @@
 Capture still images from a USB camera using ESP-IDF.   
 
 This example demonstrates how to:   
-- Capture still images from a USB camera using the USB Host UVC Dreiver.
+- Capture still images from a USB camera using the USB Host UVC Driver.
  https://components.espressif.com/components/espressif/usb_host_uvc   
 - View still images over WiFi using the built-in HTTP server.   
 - Post still images over WiFi using MQTT/HTTP.   
