@@ -188,9 +188,9 @@ void http_post_task(void *pvParameters)
 		bzero(responseBuf.response, sizeof(responseBuf.response));
 		do {
 			bzero(recv_buf, sizeof(recv_buf));
-			ESP_LOGD(TAG, "Start read now=%d", xTaskGetTickCount());
+			ESP_LOGD(TAG, "Start read now=%lu", xTaskGetTickCount());
 			readed = read(s, recv_buf, sizeof(recv_buf)-1);
-			ESP_LOGD(TAG, "End	 read now=%d readed=%d", xTaskGetTickCount(), readed);
+			ESP_LOGD(TAG, "End	 read now=%lu readed=%d", xTaskGetTickCount(), readed);
 #if 0
 			for(int i = 0; i < readed; i++) {
 				putchar(recv_buf[i]);

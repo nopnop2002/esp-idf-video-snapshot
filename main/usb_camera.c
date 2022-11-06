@@ -203,7 +203,7 @@ void usb_camera(void *pvParameters) {
 			ESP_LOGI(TAG, "frame_desc->wWidth=%d", frame_desc->wWidth);
 			ESP_LOGI(TAG, "frame_desc->wHeight=%d", frame_desc->wHeight);
 			ESP_LOGI(TAG, "format_desc->bDescriptorSubtype=%d", format_desc->bDescriptorSubtype);
-			ESP_LOGI(TAG, "frame_desc->dwDefaultFrameInterval=%d", frame_desc->dwDefaultFrameInterval);
+			ESP_LOGI(TAG, "frame_desc->dwDefaultFrameInterval=%lu", frame_desc->dwDefaultFrameInterval);
 			if (format_desc->bDescriptorSubtype == UVC_VS_FORMAT_UNCOMPRESSED) { // Logitech C270/C270N
 				ESP_LOGI(TAG, "format_desc->bDescriptorSubtype == UVC_VS_FORMAT_UNCOMPRESSED");
 				width = frame_desc->wWidth;
@@ -284,7 +284,7 @@ void usb_camera(void *pvParameters) {
 		while (1) {
 			// Wait for task notify
 			uint32_t notify = ulTaskNotifyTake( pdTRUE, pdMS_TO_TICKS(1000));
-			ESP_LOGD(TAG, "Wake Up. notify=%d", notify);
+			ESP_LOGD(TAG, "Wake Up. notify=%lu", notify);
 			if (notify == 0) {
 				if (check_for_event(UVC_DEVICE_DISCONNECTED)) break;
 				continue;
