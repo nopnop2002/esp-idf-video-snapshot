@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Requirement library
 # python3 -m pip install -U wheel
 # python3 -m pip install 'paho-mqtt>=1.0.0,<2.0.0'
 # python3 -m pip install opencv-python
 # python3 -m pip install numpy
+
 import random
 import socket
 import paho.mqtt.client as mqtt
