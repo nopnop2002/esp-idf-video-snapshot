@@ -6,32 +6,36 @@
 
 from socket import *
 import netifaces
+import argparse
 
-# Get IP address
-for iface_name in netifaces.interfaces():
-	iface_data = netifaces.ifaddresses(iface_name)
-	ipList=iface_data.get(netifaces.AF_INET)
-	#print("ip={}".format(ipList))
-	ipDict = ipList[0]
-	addr = ipDict["addr"]
-	print("addr={}".format(addr))
-	if (addr != "127.0.0.1"):
-		myIp = addr
+if __name__=='__main__':
+	parser = argparse.ArgumentParser()
+	parser.add_argument('--port', type=int, help='udp port', default=9876)
+	args = parser.parse_args()
+	print("args.port={}".format(args.port))
 
-print("myIp={}".format(myIp))
-myIpList = myIp.split('.')
-print("myIpList={}".format(myIpList))
+	# Get my IP address
+	for iface_name in netifaces.interfaces():
+		iface_data = netifaces.ifaddresses(iface_name)
+		ipList=iface_data.get(netifaces.AF_INET)
+		#print("ip={}".format(ipList))
+		ipDict = ipList[0]
+		addr = ipDict["addr"]
+		#print("addr={}".format(addr))
+		if (addr != "127.0.0.1"):
+			myIp = addr
 
-HOST = ''
-PORT = 9876
-#ADDRESS = "192.168.10.255" # for Broadcast
-ADDRESS = "{}.{}.{}.255".format(myIpList[0], myIpList[1], myIpList[2])
-print("ADDRESS={}".format(ADDRESS))
+	print("myIp={}".format(myIp))
+	myIpList = myIp.split('.')
+	print("myIpList={}".format(myIpList))
 
-s = socket(AF_INET, SOCK_DGRAM)
-s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
-s.bind((HOST, PORT))
+	# Set Directed broadcast address
+	#broadcast = "192.168.10.255" # for Broadcast
+	broadcast = "{}.{}.{}.255".format(myIpList[0], myIpList[1], myIpList[2])
+	print("broadcast={}".format(broadcast))
 
-s.sendto(b'take picture', (ADDRESS, PORT))
-
-s.close()
+	s = socket(AF_INET, SOCK_DGRAM)
+	s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
+	s.bind(('', args.port))
+	s.sendto(b'take picture', (broadcast, args.port))
+	s.close()
