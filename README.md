@@ -165,6 +165,8 @@ Filenames can be timestamped.
 - Post using MQTT   
 Still images are posted using MQTT.   
 You can download the MQTT broker from [here](https://github.com/nopnop2002/esp-idf-mqtt-broker).   
+You can use MQTT Subscriber using python.   
+https://github.com/nopnop2002/esp-idf-video-snapshot/tree/main/python-subscribe
 
 ![config-post-3](https://user-images.githubusercontent.com/6020549/198752572-26338565-fe6e-4efa-b9ae-bd85fb8131bf.jpg)
 
@@ -193,11 +195,6 @@ See [here](https://github.com/nopnop2002/esp-idf-video-streaming/issues).
 
 - Execute trigger.  
 ![ExecuteTrigger](https://user-images.githubusercontent.com/6020549/198753939-ad4c5a1e-f33c-40b1-89d9-59fc2bf4296f.jpg)
-
-# MQTT Subscriber using python
-
-You can use MQTT Subscriber using python.   
-https://github.com/nopnop2002/esp-idf-video-snapshot/tree/main/python-subscribe
 
 # View picture using Built-in WEB Server
 You can view the pictures taken using the built-in WEB server.   
