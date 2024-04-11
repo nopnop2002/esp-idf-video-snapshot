@@ -197,7 +197,7 @@ See [here](https://github.com/nopnop2002/esp-idf-video-streaming/issues).
 # MQTT Subscriber using python
 
 You can use MQTT Subscriber using python.   
-
+https://github.com/nopnop2002/esp-idf-video-snapshot/tree/main/python-subscribe
 
 # View picture using Built-in WEB Server
 You can view the pictures taken using the built-in WEB server.   
