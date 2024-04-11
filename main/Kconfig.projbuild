@@ -110,7 +110,6 @@ menu "Application configuration"
 
 		endchoice
 
-
 		config TCP_PORT
 			int "TCP Port"
 			depends on SHUTTER_TCP
@@ -286,8 +285,6 @@ menu "Application configuration"
 					MJPEGFormat.
 		endchoice
 
-
 	endmenu
-
 
 endmenu

@@ -18,8 +18,6 @@
 #include "cmd.h"
 #include "mqtt.h"
 
-#if CONFIG_SHUTTER_MQTT
-
 static const char *TAG = "SUB";
 
 extern QueueHandle_t xQueueCmd;
@@ -142,4 +140,3 @@ void mqtt_sub(void *pvParameters)
 	esp_mqtt_client_stop(mqtt_client);
 	vTaskDelete(NULL);
 }
-#endif

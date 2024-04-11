@@ -20,8 +20,6 @@
 
 #include "cmd.h"
 
-#if CONFIG_HTTP_POST
-
 /* Constants that are configurable in menuconfig */
 #if 0
 #define CONFIG_WEB_SERVER "192.168.10.43"
@@ -212,4 +210,3 @@ void http_post_task(void *pvParameters)
 
 	}
 }
-#endif

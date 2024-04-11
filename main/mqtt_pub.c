@@ -18,8 +18,6 @@
 
 #include "cmd.h"
 
-#if CONFIG_MQTT_POST
-
 static const char *TAG = "PUB";
 
 EventGroupHandle_t mqtt_status_event_group;
@@ -152,4 +150,3 @@ void mqtt_post_task(void *pvParameters)
 	vTaskDelete(NULL);
 
 }
-#endif

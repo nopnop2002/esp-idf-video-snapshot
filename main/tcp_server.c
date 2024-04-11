@@ -22,8 +22,6 @@
 
 #include "cmd.h"
 
-#if CONFIG_SHUTTER_TCP
-
 extern QueueHandle_t xQueueCmd;
 
 static const char *TAG = "TCP";
@@ -128,4 +126,3 @@ void tcp_server(void *pvParameters)
 	/* Don't reach here. */
 	vTaskDelete(NULL);
 }
-#endif
