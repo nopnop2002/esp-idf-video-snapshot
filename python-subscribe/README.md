@@ -25,3 +25,8 @@ options:
   --output OUTPUT  output file name
 ```
 
+# Default parameters   
+- host:esp32-broker.local   
+- port:1883   
+- topic:/image/esp32cam   
+- output:./output.jpg
