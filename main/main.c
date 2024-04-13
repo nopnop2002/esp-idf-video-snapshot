@@ -309,12 +309,12 @@ void time_sync_notification_cb(struct timeval *tv)
 static void initialize_sntp(void)
 {
 	ESP_LOGI(TAG, "Initializing SNTP");
-	sntp_setoperatingmode(SNTP_OPMODE_POLL);
+	esp_sntp_setoperatingmode(SNTP_OPMODE_POLL);
 	//sntp_setservername(0, "pool.ntp.org");
 	ESP_LOGI(TAG, "Your NTP Server is %s", CONFIG_NTP_SERVER);
-	sntp_setservername(0, CONFIG_NTP_SERVER);
+	esp_sntp_setservername(0, CONFIG_NTP_SERVER);
 	sntp_set_time_sync_notification_cb(time_sync_notification_cb);
-	sntp_init();
+	esp_sntp_init();
 }
 
 static esp_err_t obtain_time(void)
@@ -579,7 +579,6 @@ void app_main()
 			}
 		}
 
-#if CONFIG_HTTP_POST
 #if CONFIG_REMOTE_IS_VARIABLE_NAME
 		// 20220927-110742.jpg
 		time(&now);
@@ -592,17 +591,8 @@ void app_main()
 		timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
 #endif // CONFIG_REMOTE_IS_VARIABLE_NAME
 
-		// Send HTTP Request
+		// Send post request
 		ESP_LOGI(TAG, "remoteFileName: %s", requestBuf.remoteFileName);
-		if (xQueueSend(xQueueRequest, &requestBuf, 10) != pdPASS) {
-			ESP_LOGE(TAG, "xQueueSend fail");
-		} else {
-			xQueueReceive(xQueueResponse, &responseBuf, portMAX_DELAY);
-			ESP_LOGD(TAG, "\n%s", responseBuf.response);
-		}
-#endif // CONFIG_HTTP_POST
-
-#if CONFIG_MQTT_POST
 		requestBuf.localFileSize = pictureSize;
 		if (xQueueSend(xQueueRequest, &requestBuf, 10) != pdPASS) {
 			ESP_LOGE(TAG, "xQueueSend fail");
@@ -610,7 +600,6 @@ void app_main()
 			xQueueReceive(xQueueResponse, &responseBuf, portMAX_DELAY);
 			ESP_LOGD(TAG, "\n%s", responseBuf.response);
 		}
-#endif // CONFIG_MQTT_POST
 
 		// send Local file name to http task
 		if (xQueueSend(xQueueHttp, &httpBuf, 10) != pdPASS) {
