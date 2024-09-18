@@ -56,8 +56,8 @@ Detail is [here](https://github.com/nopnop2002/esp-idf-video-streaming/issues).
 
 
 # Software Required
-esp-idf v5.0 or later.   
-A compilation error occurs in ESP-IDF Ver4.   
+ESP-IDF V5.0 or later.   
+ESP-IDF V4.4 release branch reached EOL in July 2024.   
 
 # Wireing   
 ```
