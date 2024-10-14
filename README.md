@@ -25,7 +25,9 @@ USB cameras consume a lot of electricity.
 If the power supplied to the USB port is insufficient, the camera will not operate and ESP32 resets.  
 
 ## USB Type-A Femail connector
-Breakout boards are available from AliExpress or eBay.   
+USB connectors are available from AliExpress or eBay.   
+I used this.   
+![USBConnector](https://github.com/user-attachments/assets/8d7d8f0a-d289-44b8-ae90-c693a1099ca0)
 
 ## USB camera with UVC support
 [Here](https://www.freebsd.org/cgi/man.cgi?query=uvc&sektion=4&manpath=freebsd-release-ports) is a list of USB cameras that support UVC that work with FreeBSD.   
@@ -60,6 +62,13 @@ ESP-IDF V5.0 or later.
 ESP-IDF V4.4 release branch reached EOL in July 2024.   
 
 # Wireing   
+USB camera connects via USB connector.   
+```
++---------+  +-------------+  +----------+
+|ESP BOARD|==|USB CONNECTOR|==|USB CAMERA|
++---------+  +-------------+  +----------+
+```
+
 ```
 ESP BOARD          USB CONNECTOR (type A)
                          +--+
