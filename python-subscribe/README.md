@@ -6,12 +6,13 @@ View the image after you subscribe.
 
 # Installation   
 ```
-git clone https://github.com/nopnop2002/esp-idf-video-snapshot
-cd esp-idf-video-snapshot/python-subscribe
 python3 -m pip install -U wheel
 python3 -m pip install paho-mqtt
 python3 -m pip install opencv-python
 python3 -m pip install numpy
+
+git clone https://github.com/nopnop2002/esp-idf-video-snapshot
+cd esp-idf-video-snapshot/python-subscribe
 
 python3 subscribe.py --help
 usage: subscribe.py [-h] [--host HOST] [--port PORT] [--topic TOPIC]
