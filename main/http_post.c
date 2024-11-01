@@ -30,7 +30,6 @@
 #define BOUNDARY "X-ESPIDF_MULTIPART"
 
 extern QueueHandle_t xQueueRequest;
-extern QueueHandle_t xQueueResponse;
 
 static const char *TAG = "POST";
 
@@ -70,7 +69,6 @@ void http_post_task(void *pvParameters)
 		}
 
 		/* Code to print the resolved IP.
-
 		   Note: inet_ntoa is non-reentrant, look at ipaddr_ntoa_r for "real" code */
 		addr = &((struct sockaddr_in *)res->ai_addr)->sin_addr;
 		ESP_LOGI(TAG, "DNS lookup succeeded. IP=%s", inet_ntoa(*addr));
@@ -182,8 +180,8 @@ void http_post_task(void *pvParameters)
 
 		/* Read HTTP response */
 		int readed;
-		RESPONSE_t responseBuf;
-		bzero(responseBuf.response, sizeof(responseBuf.response));
+		char response[256];
+		bzero(response, sizeof(response));
 		do {
 			bzero(recv_buf, sizeof(recv_buf));
 			ESP_LOGD(TAG, "Start read now=%lu", xTaskGetTickCount());
@@ -194,16 +192,14 @@ void http_post_task(void *pvParameters)
 				putchar(recv_buf[i]);
 			}
 #endif
-			strcat(responseBuf.response, recv_buf);
+			strcat(response, recv_buf);
 		} while(readed > 0);
 #if 0
 		printf("\n");
 #endif
 
-		/* send HTTP response */
-		if (xQueueSend(xQueueResponse, &responseBuf, 10) != pdPASS) {
-			ESP_LOGE(TAG, "xQueueSend fail");
-		}
+		// send task notify
+		xTaskNotify(requestBuf.taskHandle, 0x00, eSetValueWithOverwrite);
 
 		close(s);
 		ESP_LOGI(TAG, "All done");

@@ -104,7 +104,6 @@ void mqtt_post_task(void *pvParameters)
 	ESP_LOGI(TAG, "Connect to MQTT Server");
 
 	REQUEST_t requestBuf;
-	RESPONSE_t responseBuf;
 	while (1) {
 		xQueueReceive(xQueueRequest, &requestBuf, portMAX_DELAY);
 		ESP_LOGI(TAG, "localFileName=[%s] localFileSize=%d", requestBuf.localFileName, requestBuf.localFileSize);
@@ -138,10 +137,8 @@ void mqtt_post_task(void *pvParameters)
 			ESP_LOGW(TAG, "Disconnect to MQTT Server. Skip to send");
 		}
 
-		/* send HTTP response */
-		if (xQueueSend(xQueueResponse, &responseBuf, 10) != pdPASS) {
-			ESP_LOGE(TAG, "xQueueSend fail");
-		}
+		// send task notify
+		xTaskNotify(requestBuf.taskHandle, 0x00, eSetValueWithOverwrite);
 
 	}
 

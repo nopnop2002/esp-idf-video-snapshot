@@ -62,7 +62,6 @@ QueueHandle_t xQueueCmd;
 QueueHandle_t xQueueHttp;
 RingbufHandle_t xRingbuffer;
 QueueHandle_t xQueueRequest;
-QueueHandle_t xQueueResponse;
 
 static void displayBuffer(uint8_t * buf, int buf_len, bool flag) {
 	if (flag == false) return;
@@ -468,8 +467,6 @@ void app_main()
 	configASSERT( xQueueHttp );
 	xQueueRequest = xQueueCreate( 1, sizeof(REQUEST_t) );
 	configASSERT( xQueueRequest );
-	xQueueResponse = xQueueCreate( 1, sizeof(RESPONSE_t) );
-	configASSERT( xQueueResponse );
 
 	/* Create Shutter Task */
 #if CONFIG_SHUTTER_ENTER
@@ -531,7 +528,6 @@ void app_main()
 
 #if CONFIG_HTTP_POST
 	REQUEST_t requestBuf;
-	RESPONSE_t responseBuf;
 	requestBuf.command = CMD_SEND;
 	requestBuf.taskHandle = xTaskGetCurrentTaskHandle();
 	strcpy(requestBuf.localFileName, httpBuf.localFileName);
@@ -544,7 +540,6 @@ void app_main()
 
 #if CONFIG_MQTT_POST
 	REQUEST_t requestBuf;
-	RESPONSE_t responseBuf;
 	requestBuf.command = CMD_SEND;
 	requestBuf.taskHandle = xTaskGetCurrentTaskHandle();
 	strcpy(requestBuf.localFileName, httpBuf.localFileName);
@@ -589,17 +584,19 @@ void app_main()
 		sprintf(requestBuf.remoteFileName, "%04d%02d%02d-%02d%02d%02d.jpg",
 		(timeinfo.tm_year+1900),(timeinfo.tm_mon+1),timeinfo.tm_mday,
 		timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
+		ESP_LOGI(TAG, "remoteFileName=%s",requestBuf.remoteFileName);
 #endif // CONFIG_REMOTE_IS_VARIABLE_NAME
 
+#if CONFIG_HTTP_POST || CONFIG_MQTT_POST
 		// Send post request
-		ESP_LOGI(TAG, "remoteFileName: %s", requestBuf.remoteFileName);
 		requestBuf.localFileSize = pictureSize;
 		if (xQueueSend(xQueueRequest, &requestBuf, 10) != pdPASS) {
 			ESP_LOGE(TAG, "xQueueSend fail");
 		} else {
-			xQueueReceive(xQueueResponse, &responseBuf, portMAX_DELAY);
-			ESP_LOGD(TAG, "\n%s", responseBuf.response);
+			uint32_t value = ulTaskNotifyTake( pdTRUE, portMAX_DELAY );
+			ESP_LOGI(TAG, "ulTaskNotifyTake value=%"PRIx32, value);
 		}
+#endif // CONFIG_HTTP_POST || CONFIG_MQTT_POST
 
 		// send Local file name to http task
 		if (xQueueSend(xQueueHttp, &httpBuf, 10) != pdPASS) {
