@@ -141,8 +141,7 @@ static esp_err_t camera_capture(char * FileName, size_t *pictureSize, size_t *pi
 	return ESP_OK;
 }
 
-static void event_handler(void* arg, esp_event_base_t event_base,
-								int32_t event_id, void* event_data)
+static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
 	if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
 		esp_wifi_connect();
@@ -163,7 +162,7 @@ static void event_handler(void* arg, esp_event_base_t event_base,
 	}
 }
 
-void wifi_init_sta()
+esp_err_t wifi_init_sta()
 {
 	s_wifi_event_group = xEventGroupCreate();
 
@@ -212,41 +211,65 @@ void wifi_init_sta()
 	wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
 	ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
-	ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL));
-	ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL));
+	esp_event_handler_instance_t instance_any_id;
+	esp_event_handler_instance_t instance_got_ip;
+	ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT,
+		ESP_EVENT_ANY_ID,
+		&event_handler,
+		NULL,
+		&instance_any_id));
+	ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT,
+		IP_EVENT_STA_GOT_IP,
+		&event_handler,
+		NULL,
+		&instance_got_ip));
 
 	wifi_config_t wifi_config = {
 		.sta = {
 			.ssid = CONFIG_ESP_WIFI_SSID,
-			.password = CONFIG_ESP_WIFI_PASSWORD
+			.password = CONFIG_ESP_WIFI_PASSWORD,
+			/* Setting a password implies station will connect to all security modes including WEP/WPA.
+			 * However these modes are deprecated and not advisable to be used. Incase your Access point
+			 * doesn't support WPA2, these mode can be enabled by commenting below line */
+			.threshold.authmode = WIFI_AUTH_WPA2_PSK,
+
+			.pmf_cfg = {
+				.capable = true,
+				.required = false
+			},
 		},
 	};
-	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
-	ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
-	ESP_ERROR_CHECK(esp_wifi_start() );
-
-	ESP_LOGI(TAG, "wifi_init_sta finished.");
+	ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));
+	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+	ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
+	ESP_ERROR_CHECK(esp_wifi_start());
 
 	/* Waiting until either the connection is established (WIFI_CONNECTED_BIT) or connection failed for the maximum
 	 * number of re-tries (WIFI_FAIL_BIT). The bits are set by event_handler() (see above) */
+	esp_err_t ret_value = ESP_OK;
 	EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group,
-			WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
-			pdFALSE,
-			pdFALSE,
-			portMAX_DELAY);
+		WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
+		pdFALSE,
+		pdFALSE,
+		portMAX_DELAY);
 
 	/* xEventGroupWaitBits() returns the bits before the call returned, hence we can test which event actually
 	 * happened. */
 	if (bits & WIFI_CONNECTED_BIT) {
-		ESP_LOGI(TAG, "connected to ap SSID:%s password:%s",
-				 CONFIG_ESP_WIFI_SSID, CONFIG_ESP_WIFI_PASSWORD);
+		ESP_LOGI(TAG, "connected to ap SSID:%s password:%s", CONFIG_ESP_WIFI_SSID, CONFIG_ESP_WIFI_PASSWORD);
 	} else if (bits & WIFI_FAIL_BIT) {
-		ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
-				 CONFIG_ESP_WIFI_SSID, CONFIG_ESP_WIFI_PASSWORD);
+		ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s", CONFIG_ESP_WIFI_SSID, CONFIG_ESP_WIFI_PASSWORD);
+		ret_value = ESP_FAIL;
 	} else {
 		ESP_LOGE(TAG, "UNEXPECTED EVENT");
+		ret_value = ESP_FAIL;
 	}
+
+	/* The event will not be processed after unregister */
+	ESP_ERROR_CHECK(esp_event_handler_instance_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, instance_got_ip));
+	ESP_ERROR_CHECK(esp_event_handler_instance_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, instance_any_id));
 	vEventGroupDelete(s_wifi_event_group);
+	return ret_value;
 }
 
 void initialise_mdns(void)
@@ -342,10 +365,10 @@ esp_err_t query_mdns_host(const char * host_name, char *ip)
 	esp_err_t err = mdns_query_a(host_name, 10000,	&addr);
 	if(err){
 		if(err == ESP_ERR_NOT_FOUND){
-			ESP_LOGW(__FUNCTION__, "%s: Host was not found!", esp_err_to_name(err));
-			return ESP_FAIL;
+			ESP_LOGW(__FUNCTION__, "%s: Host was not found!", host_name);
+		} else {
+			ESP_LOGE(__FUNCTION__, "Query Failed: %s", esp_err_to_name(err));
 		}
-		ESP_LOGE(__FUNCTION__, "Query Failed: %s", esp_err_to_name(err));
 		return ESP_FAIL;
 	}
 
@@ -415,7 +438,7 @@ void mqtt_post_task(void *pvParameters);
 
 void app_main()
 {
-	//Initialize NVS
+	// Initialize NVS
 	esp_err_t ret = nvs_flash_init();
 	if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
 		ESP_ERROR_CHECK(nvs_flash_erase());
@@ -423,18 +446,16 @@ void app_main()
 	}
 	ESP_ERROR_CHECK(ret);
 
-	ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
-	wifi_init_sta();
+	// Initialize WiFi
+	ESP_ERROR_CHECK(wifi_init_sta());
+
+	// Initialize mDNS
 	initialise_mdns();
 
 #if CONFIG_REMOTE_IS_VARIABLE_NAME
-	// obtain time over NTP
+	// Obtain time over NTP
 	ESP_LOGI(TAG, "Connecting to WiFi and getting time over NTP.");
-	ret = obtain_time();
-	if(ret != ESP_OK) {
-		ESP_LOGE(TAG, "Fail to getting time over NTP.");
-		return;
-	}
+	ESP_ERROR_CHECK(obtain_time());
 
 	// update 'now' variable with current time
 	time_t now;
@@ -450,11 +471,7 @@ void app_main()
 	// Initialize SPIFFS
 	char *partition_label = "storage";
 	char *base_path = "/spiffs"; 
-	ret = mountSPIFFS(partition_label, base_path);
-	if (ret != ESP_OK) {
-		ESP_LOGE(TAG, "mountSPIFFS fail");
-		while(1) { vTaskDelay(1); }
-	}
+	ESP_ERROR_CHECK(mountSPIFFS(partition_label, base_path));
 
 	/* Create RingBuffer */
 	xRingbuffer = xRingbufferCreate(100000, RINGBUF_TYPE_BYTEBUF);
